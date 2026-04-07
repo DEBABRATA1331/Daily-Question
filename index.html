@@ -5,378 +5,189 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Video Editing Dashboard</title>
 <style>
-  :root {
-    --bg: #ffffff;
-    --bg2: #f7f7f5;
-    --bg3: #f0efec;
-    --text: #1a1a18;
-    --text2: #6b6b67;
-    --text3: #9b9b97;
-    --border: rgba(0,0,0,0.1);
-    --border2: rgba(0,0,0,0.18);
-    --info-bg: #e6f1fb;
-    --info-text: #185fa5;
-    --info-border: #b5d4f4;
-    --success-bg: #eaf3de;
-    --success-text: #3b6d11;
-    --success-border: #c0dd97;
-    --warn-bg: #faeeda;
-    --warn-text: #854f0b;
-    --warn-border: #fac775;
-    --danger-bg: #fcebeb;
-    --danger-text: #a32d2d;
-    --danger-border: #f7c1c1;
-    --radius: 8px;
-    --radius-lg: 12px;
+:root {
+  --bg:#ffffff; --bg2:#f7f7f5; --bg3:#f0efec;
+  --text:#1a1a18; --text2:#6b6b67; --text3:#9b9b97;
+  --border:rgba(0,0,0,0.1); --border2:rgba(0,0,0,0.18);
+  --info-bg:#e6f1fb; --info-text:#185fa5; --info-border:#b5d4f4;
+  --success-bg:#eaf3de; --success-text:#3b6d11; --success-border:#c0dd97;
+  --warn-bg:#faeeda; --warn-text:#854f0b; --warn-border:#fac775;
+  --danger-bg:#fcebeb; --danger-text:#a32d2d; --danger-border:#f7c1c1;
+  --r:8px; --rl:12px;
+}
+@media(prefers-color-scheme:dark){
+  :root{
+    --bg:#1e1e1c; --bg2:#282826; --bg3:#323230;
+    --text:#e8e8e4; --text2:#9b9b97; --text3:#6b6b67;
+    --border:rgba(255,255,255,0.1); --border2:rgba(255,255,255,0.18);
+    --info-bg:#0c2540; --info-text:#85b7eb; --info-border:#185fa5;
+    --success-bg:#172a08; --success-text:#97c459; --success-border:#3b6d11;
+    --warn-bg:#2a1e08; --warn-text:#fac775; --warn-border:#854f0b;
+    --danger-bg:#2a0f0f; --danger-text:#f09595; --danger-border:#a32d2d;
   }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: #1e1e1c;
-      --bg2: #282826;
-      --bg3: #323230;
-      --text: #e8e8e4;
-      --text2: #9b9b97;
-      --text3: #6b6b67;
-      --border: rgba(255,255,255,0.1);
-      --border2: rgba(255,255,255,0.18);
-      --info-bg: #0c2540;
-      --info-text: #85b7eb;
-      --info-border: #185fa5;
-      --success-bg: #172a08;
-      --success-text: #97c459;
-      --success-border: #3b6d11;
-      --warn-bg: #2a1e08;
-      --warn-text: #fac775;
-      --warn-border: #854f0b;
-      --danger-bg: #2a0f0f;
-      --danger-text: #f09595;
-      --danger-border: #a32d2d;
-    }
-  }
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg3);color:var(--text);font-size:14px;min-height:100vh;}
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+/* HEADER */
+.hdr{background:var(--bg);border-bottom:0.5px solid var(--border);padding:13px 24px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:100;}
+.hdr h1{font-size:17px;font-weight:600;letter-spacing:-0.02em;flex:1;}
+.hdr-badge{background:var(--info-bg);color:var(--info-text);font-size:11px;padding:3px 10px;border-radius:99px;font-weight:500;display:none;}
 
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-    background: var(--bg3);
-    color: var(--text);
-    font-size: 14px;
-    min-height: 100vh;
-  }
+/* LAYOUT */
+.main{max-width:1300px;margin:0 auto;padding:20px 24px;}
 
-  .header {
-    background: var(--bg);
-    border-bottom: 0.5px solid var(--border);
-    padding: 14px 24px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-  }
-  .header h1 { font-size: 17px; font-weight: 600; letter-spacing: -0.02em; flex: 1; }
-  .header-badge { background: var(--info-bg); color: var(--info-text); font-size: 11px; padding: 3px 10px; border-radius: 99px; font-weight: 500; }
+/* CARDS */
+.card{background:var(--bg);border:0.5px solid var(--border);border-radius:var(--rl);padding:18px 20px;margin-bottom:14px;}
+.card h2{font-size:14px;font-weight:500;margin-bottom:12px;}
 
-  .main { max-width: 1280px; margin: 0 auto; padding: 20px 24px; }
+/* TABS */
+.tabs{display:flex;gap:2px;margin-bottom:14px;background:var(--bg2);border-radius:var(--r);padding:3px;width:fit-content;}
+.tab{padding:6px 16px;border-radius:6px;border:none;background:transparent;color:var(--text2);font-size:13px;cursor:pointer;font-family:inherit;}
+.tab.on{background:var(--bg);color:var(--text);font-weight:500;box-shadow:0 1px 3px rgba(0,0,0,0.08);}
+.tab-panel{display:none;} .tab-panel.on{display:block;}
 
-  /* API Key section */
-  .api-section {
-    background: var(--bg);
-    border: 0.5px solid var(--border);
-    border-radius: var(--radius-lg);
-    padding: 16px 20px;
-    margin-bottom: 16px;
-  }
-  .api-section label { font-size: 12px; font-weight: 500; color: var(--text2); display: block; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.04em; }
-  .api-row { display: flex; gap: 8px; }
-  .api-row input { flex: 1; padding: 9px 12px; border: 0.5px solid var(--border2); border-radius: var(--radius); background: var(--bg2); color: var(--text); font-size: 13px; font-family: monospace; }
-  .api-row input:focus { outline: none; border-color: var(--info-text); }
-  .api-hint { font-size: 11px; color: var(--text3); margin-top: 6px; }
-  .api-hint a { color: var(--info-text); }
+/* HINT */
+.hint{background:var(--info-bg);border:0.5px solid var(--info-border);border-radius:var(--r);padding:10px 14px;font-size:12px;color:var(--info-text);margin-bottom:12px;line-height:1.6;}
+.hint code{background:rgba(0,0,0,0.1);padding:1px 5px;border-radius:3px;font-family:monospace;}
+.hint strong{font-weight:600;}
 
-  /* Import section */
-  .import-section {
-    background: var(--bg);
-    border: 0.5px solid var(--border);
-    border-radius: var(--radius-lg);
-    padding: 16px 20px;
-    margin-bottom: 16px;
-  }
-  .import-section h2 { font-size: 14px; font-weight: 500; margin-bottom: 12px; }
+/* INPUTS */
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;}
+input[type=url],input[type=text],input[type=password]{flex:1;min-width:200px;padding:9px 12px;border:0.5px solid var(--border2);border-radius:var(--r);background:var(--bg2);color:var(--text);font-size:13px;font-family:inherit;}
+input:focus{outline:none;border-color:var(--info-text);}
+textarea{width:100%;padding:10px 12px;border:0.5px solid var(--border2);border-radius:var(--r);background:var(--bg2);color:var(--text);font-size:13px;font-family:monospace;resize:vertical;min-height:160px;line-height:1.5;}
+textarea:focus{outline:none;border-color:var(--info-text);}
 
-  .tabs { display: flex; gap: 2px; margin-bottom: 14px; background: var(--bg2); border-radius: var(--radius); padding: 3px; width: fit-content; }
-  .tab { padding: 6px 16px; border-radius: 6px; border: none; background: transparent; color: var(--text2); font-size: 13px; cursor: pointer; transition: all 0.15s; }
-  .tab.active { background: var(--bg); color: var(--text); font-weight: 500; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+/* BUTTONS */
+button{padding:8px 16px;border:0.5px solid var(--border2);border-radius:var(--r);background:var(--bg);color:var(--text);cursor:pointer;font-size:13px;font-family:inherit;white-space:nowrap;transition:background .12s;}
+button:hover{background:var(--bg2);}
+button:active{transform:scale(0.98);}
+button:disabled{opacity:.4;cursor:not-allowed;transform:none;}
+.btn-p{background:var(--info-bg);color:var(--info-text);border-color:var(--info-border);font-weight:500;}
+.btn-d{background:var(--danger-bg);color:var(--danger-text);border-color:var(--danger-border);}
+.btn-row{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;}
 
-  .tab-panel { display: none; }
-  .tab-panel.active { display: block; }
+/* MESSAGES */
+.msg{border-radius:var(--r);padding:10px 14px;font-size:13px;margin-bottom:0;line-height:1.5;}
+.msg+.msg{margin-top:8px;}
+.m-e{background:var(--danger-bg);color:var(--danger-text);border:0.5px solid var(--danger-border);}
+.m-s{background:var(--success-bg);color:var(--success-text);border:0.5px solid var(--success-border);}
+.m-i{background:var(--info-bg);color:var(--info-text);border:0.5px solid var(--info-border);}
+#msgWrap{margin-top:12px;}
 
-  .hint-box { background: var(--info-bg); border: 0.5px solid var(--info-border); border-radius: var(--radius); padding: 10px 14px; font-size: 12px; color: var(--info-text); margin-bottom: 12px; line-height: 1.6; }
-  .hint-box code { background: rgba(0,0,0,0.08); padding: 1px 5px; border-radius: 3px; font-family: monospace; }
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:14px;}
+.sc{background:var(--bg);border:0.5px solid var(--border);border-radius:var(--rl);padding:14px 16px;}
+.sc-lbl{font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;}
+.sc-val{font-size:26px;font-weight:600;letter-spacing:-.03em;}
+.c-pend{color:var(--warn-text);} .c-conf{color:var(--success-text);} .c-rev{color:var(--info-text);}
 
-  .input-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
-  .input-row input[type=url], .input-row input[type=text] {
-    flex: 1; min-width: 220px;
-    padding: 9px 12px;
-    border: 0.5px solid var(--border2);
-    border-radius: var(--radius);
-    background: var(--bg2);
-    color: var(--text);
-    font-size: 13px;
-  }
-  .input-row input:focus { outline: none; border-color: var(--info-text); }
+/* HISTORY */
+.hist{background:var(--bg);border:0.5px solid var(--border);border-radius:var(--r);padding:10px 14px;margin-bottom:14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12px;color:var(--text2);}
+.stag{display:inline-block;background:var(--info-bg);color:var(--info-text);border-radius:var(--r);padding:3px 9px;font-size:11px;font-weight:500;}
 
-  textarea {
-    width: 100%;
-    padding: 10px 12px;
-    border: 0.5px solid var(--border2);
-    border-radius: var(--radius);
-    background: var(--bg2);
-    color: var(--text);
-    font-size: 13px;
-    font-family: monospace;
-    resize: vertical;
-    min-height: 150px;
-    line-height: 1.5;
-  }
-  textarea:focus { outline: none; border-color: var(--info-text); }
+/* TOOLBAR */
+.toolbar{display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap;align-items:center;justify-content:space-between;}
+.filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+.filters label{font-size:12px;color:var(--text2);}
+.filters select,.filters input[type=text]{padding:6px 10px;border:0.5px solid var(--border2);border-radius:var(--r);background:var(--bg);color:var(--text);font-size:13px;font-family:inherit;}
 
-  .btn-row { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+/* TABLE */
+.tbl-wrap{background:var(--bg);border:0.5px solid var(--border);border-radius:var(--rl);overflow:hidden;}
+.tbl-scroll{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;min-width:940px;}
+thead th{background:var(--bg2);font-weight:500;font-size:11px;text-transform:uppercase;letter-spacing:.05em;padding:11px 14px;text-align:left;border-bottom:0.5px solid var(--border);color:var(--text2);white-space:nowrap;}
+tbody tr{border-bottom:0.5px solid var(--border);transition:background .1s;}
+tbody tr:last-child{border-bottom:none;}
+tbody tr:hover{background:var(--bg2);}
+td{padding:10px 14px;font-size:13px;vertical-align:top;}
+.rn{color:var(--text3);font-size:12px;width:36px;}
+.qn{font-weight:600;white-space:nowrap;}
+.ctx{max-width:230px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:help;}
+.opt{max-width:190px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12px;color:var(--text2);cursor:help;}
+.ts{font-family:monospace;font-size:12px;white-space:nowrap;color:var(--text2);}
+.dt{font-size:12px;white-space:nowrap;}
 
-  button {
-    padding: 8px 16px;
-    border: 0.5px solid var(--border2);
-    border-radius: var(--radius);
-    background: var(--bg);
-    color: var(--text);
-    cursor: pointer;
-    font-size: 13px;
-    font-family: inherit;
-    white-space: nowrap;
-    transition: background 0.12s;
-  }
-  button:hover { background: var(--bg2); }
-  button:active { transform: scale(0.98); }
-  button:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
-  .btn-primary { background: var(--info-bg); color: var(--info-text); border-color: var(--info-border); font-weight: 500; }
-  .btn-primary:hover { filter: brightness(0.95); }
-  .btn-danger { background: var(--danger-bg); color: var(--danger-text); border-color: var(--danger-border); }
+select.ss{border:0.5px solid var(--border2);border-radius:var(--r);padding:4px 8px;font-size:12px;cursor:pointer;font-family:inherit;}
+.ss.sp{background:var(--warn-bg);color:var(--warn-text);border-color:var(--warn-border);}
+.ss.sc2{background:var(--success-bg);color:var(--success-text);border-color:var(--success-border);}
+.ss.sr{background:var(--info-bg);color:var(--info-text);border-color:var(--info-border);}
 
-  /* Messages */
-  .msg { border-radius: var(--radius); padding: 10px 14px; font-size: 13px; margin-bottom: 14px; line-height: 1.5; }
-  .msg-error { background: var(--danger-bg); color: var(--danger-text); border: 0.5px solid var(--danger-border); }
-  .msg-success { background: var(--success-bg); color: var(--success-text); border: 0.5px solid var(--success-border); }
-  .msg-info { background: var(--info-bg); color: var(--info-text); border: 0.5px solid var(--info-border); }
+/* EMPTY */
+.empty{text-align:center;padding:48px 24px;color:var(--text2);}
+.empty .ico{font-size:36px;margin-bottom:14px;}
+.empty p{font-size:15px;color:var(--text);margin-bottom:6px;font-weight:500;}
+.empty span{font-size:13px;}
 
-  .spinner {
-    display: inline-block; width: 14px; height: 14px;
-    border: 2px solid rgba(0,0,0,0.15); border-top-color: var(--info-text);
-    border-radius: 50%; animation: spin 0.7s linear infinite;
-    vertical-align: middle; margin-right: 6px;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  /* Stats */
-  .stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-    gap: 10px;
-    margin-bottom: 16px;
-  }
-  .stat-card {
-    background: var(--bg);
-    border: 0.5px solid var(--border);
-    border-radius: var(--radius-lg);
-    padding: 14px 16px;
-  }
-  .stat-label { font-size: 11px; color: var(--text2); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
-  .stat-val { font-size: 26px; font-weight: 600; letter-spacing: -0.03em; }
-  .stat-val.pend { color: var(--warn-text); }
-  .stat-val.conf { color: var(--success-text); }
-  .stat-val.rev { color: var(--info-text); }
-
-  /* History */
-  .history-bar {
-    background: var(--bg);
-    border: 0.5px solid var(--border);
-    border-radius: var(--radius);
-    padding: 10px 14px;
-    margin-bottom: 14px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-wrap: wrap;
-    font-size: 12px;
-    color: var(--text2);
-  }
-  .source-tag {
-    display: inline-block;
-    background: var(--info-bg);
-    color: var(--info-text);
-    border-radius: var(--radius);
-    padding: 3px 9px;
-    font-size: 11px;
-    font-weight: 500;
-    cursor: default;
-  }
-
-  /* Toolbar */
-  .toolbar {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 12px;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-  }
-  .filters { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
-  .filters label { font-size: 12px; color: var(--text2); }
-  .filters select, .filters input[type=text] {
-    padding: 6px 10px;
-    border: 0.5px solid var(--border2);
-    border-radius: var(--radius);
-    background: var(--bg);
-    color: var(--text);
-    font-size: 13px;
-  }
-  .filters select:focus, .filters input:focus { outline: none; }
-
-  /* Table */
-  .table-section {
-    background: var(--bg);
-    border: 0.5px solid var(--border);
-    border-radius: var(--radius-lg);
-    overflow: hidden;
-  }
-  .table-scroll { overflow-x: auto; }
-  table { width: 100%; border-collapse: collapse; min-width: 920px; }
-  thead th {
-    background: var(--bg2);
-    font-weight: 500;
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    padding: 11px 14px;
-    text-align: left;
-    border-bottom: 0.5px solid var(--border);
-    color: var(--text2);
-    white-space: nowrap;
-    position: sticky;
-    top: 52px;
-  }
-  tbody tr { border-bottom: 0.5px solid var(--border); transition: background 0.1s; }
-  tbody tr:last-child { border-bottom: none; }
-  tbody tr:hover { background: var(--bg2); }
-  td { padding: 10px 14px; font-size: 13px; vertical-align: top; }
-
-  .row-num { color: var(--text3); font-size: 12px; width: 36px; }
-  .q-num { font-weight: 600; white-space: nowrap; font-size: 13px; }
-  .context-cell { max-width: 220px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: help; }
-  .options-cell { max-width: 180px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 12px; color: var(--text2); cursor: help; }
-  .ts-cell { font-family: monospace; font-size: 12px; white-space: nowrap; color: var(--text2); }
-  .date-cell { font-size: 12px; white-space: nowrap; }
-
-  select.status-sel {
-    border: 0.5px solid var(--border2);
-    border-radius: var(--radius);
-    background: var(--bg2);
-    color: var(--text);
-    padding: 4px 8px;
-    font-size: 12px;
-    cursor: pointer;
-    font-family: inherit;
-  }
-  select.status-sel.s-pending { background: var(--warn-bg); color: var(--warn-text); border-color: var(--warn-border); }
-  select.status-sel.s-confirmed { background: var(--success-bg); color: var(--success-text); border-color: var(--success-border); }
-  select.status-sel.s-review { background: var(--info-bg); color: var(--info-text); border-color: var(--info-border); }
-
-  .empty-state { text-align: center; padding: 48px 24px; color: var(--text2); }
-  .empty-state .icon { font-size: 36px; margin-bottom: 14px; }
-  .empty-state p { font-size: 15px; color: var(--text); margin-bottom: 6px; font-weight: 500; }
-  .empty-state span { font-size: 13px; }
-
-  @media (max-width: 600px) {
-    .main { padding: 12px; }
-    .header { padding: 12px; }
-  }
+/* PARSE PREVIEW */
+.preview-box{background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--r);padding:12px 14px;margin-top:10px;font-size:12px;color:var(--text2);max-height:120px;overflow-y:auto;font-family:monospace;line-height:1.6;}
 </style>
 </head>
 <body>
 
-<div class="header">
+<div class="hdr">
   <h1>🎬 Video Editing Dashboard</h1>
-  <span class="header-badge" id="headerBadge" style="display:none">0 questions</span>
+  <span class="hdr-badge" id="hdrBadge">0 questions</span>
 </div>
 
 <div class="main">
 
-  <!-- API Key -->
-  <div class="api-section">
-    <label>Anthropic API Key</label>
-    <div class="api-row">
-      <input type="password" id="apiKey" placeholder="sk-ant-api03-..." autocomplete="off" />
-      <button onclick="saveKey()">Save Key</button>
-    </div>
-    <p class="api-hint">
-      Your key is stored only in this browser session (never sent anywhere except api.anthropic.com).
-      Get one at <a href="https://console.anthropic.com/" target="_blank">console.anthropic.com</a>.
-    </p>
-  </div>
-
-  <!-- Import -->
-  <div class="import-section">
-    <h2>Import Questions</h2>
+  <!-- IMPORT CARD -->
+  <div class="card">
+    <h2>Import Questions from Google Doc</h2>
 
     <div class="tabs">
-      <button class="tab active" onclick="switchTab('paste',this)">Paste Doc Text</button>
-      <button class="tab" onclick="switchTab('url',this)">Auto URL</button>
+      <button class="tab on" onclick="switchTab('paste',this)">📋 Paste Doc Text</button>
+      <button class="tab" onclick="switchTab('url',this)">🔗 Auto URL</button>
     </div>
 
-    <div id="tab-paste" class="tab-panel active">
-      <div class="hint-box">
-        Open your Google Doc → press <code>Ctrl+A</code> then <code>Ctrl+C</code> → paste below. Optional: add the doc URL for reference.
+    <!-- PASTE TAB -->
+    <div id="tab-paste" class="tab-panel on">
+      <div class="hint">
+        Open your Google Doc → press <code>Ctrl+A</code> then <code>Ctrl+C</code> to copy everything → paste below → click <strong>Parse &amp; Import</strong>. No API key needed.
       </div>
-      <div class="input-row">
-        <input type="url" id="refUrl" placeholder="Doc URL (optional, for reference only)" />
+      <div class="row">
+        <input type="url" id="refUrl" placeholder="Doc URL (optional — saved as reference)" />
       </div>
-      <textarea id="pasteArea" placeholder="Paste your Google Doc content here...&#10;&#10;Example:&#10;Date: 15 Jan 2024&#10;Q1. What is photosynthesis?&#10;A. Process of making food  B. Breathing  C. Digestion  D. Reproduction&#10;Timestamp: 00:05:30&#10;Status: Pending"></textarea>
+      <textarea id="pasteArea" placeholder="Paste your Google Doc content here...&#10;&#10;The parser understands formats like:&#10;  Date: 15 Jan 2024&#10;  Q1. What is photosynthesis?&#10;  A. Process of making food  B. Breathing  C. Digestion  D. Reproduction&#10;  Timestamp: 00:05:30&#10;  Status: Confirmed&#10;&#10;Or any consistent pattern — it will auto-detect questions."></textarea>
       <div class="btn-row">
-        <button class="btn-primary" onclick="doImportPaste()">Parse &amp; Import</button>
+        <button class="btn-p" onclick="doImportPaste()">⚡ Parse &amp; Import</button>
         <button onclick="undoLast()" id="undoBtn" disabled>↩ Undo</button>
-        <button onclick="clearAll()" class="btn-danger">🗑 Clear All</button>
+        <button onclick="clearAll()" class="btn-d">🗑 Clear All</button>
       </div>
     </div>
 
+    <!-- URL TAB -->
     <div id="tab-url" class="tab-panel">
-      <div class="hint-box">
-        Doc must be set to <strong>Anyone with link → Viewer</strong>. This fetches the doc automatically.
+      <div class="hint">
+        Doc must be <strong>publicly viewable</strong> (Share → Anyone with link → Viewer). Fetches &amp; parses automatically.
       </div>
-      <div class="input-row">
+      <div class="row">
         <input type="url" id="autoUrl" placeholder="https://docs.google.com/document/d/..." />
-        <button class="btn-primary" onclick="doImportUrl()">Import Doc</button>
+        <button class="btn-p" onclick="doImportUrl()">⚡ Import Doc</button>
       </div>
     </div>
 
-    <div id="msgArea"></div>
+    <div id="msgWrap"></div>
   </div>
 
-  <!-- Stats -->
-  <div class="stats-grid" id="statsGrid" style="display:none">
-    <div class="stat-card"><div class="stat-label">Total Questions</div><div class="stat-val" id="sTotal">0</div></div>
-    <div class="stat-card"><div class="stat-label">Pending</div><div class="stat-val pend" id="sPending">0</div></div>
-    <div class="stat-card"><div class="stat-label">Confirmed</div><div class="stat-val conf" id="sConfirmed">0</div></div>
-    <div class="stat-card"><div class="stat-label">Review</div><div class="stat-val rev" id="sReview">0</div></div>
-    <div class="stat-card"><div class="stat-label">Docs Imported</div><div class="stat-val" id="sDocs">0</div></div>
+  <!-- STATS -->
+  <div class="stats" id="statsGrid" style="display:none">
+    <div class="sc"><div class="sc-lbl">Total Questions</div><div class="sc-val" id="sTotal">0</div></div>
+    <div class="sc"><div class="sc-lbl">Pending</div><div class="sc-val c-pend" id="sPend">0</div></div>
+    <div class="sc"><div class="sc-lbl">Confirmed</div><div class="sc-val c-conf" id="sConf">0</div></div>
+    <div class="sc"><div class="sc-lbl">Review</div><div class="sc-val c-rev" id="sRev">0</div></div>
+    <div class="sc"><div class="sc-lbl">Docs Imported</div><div class="sc-val" id="sDocs">0</div></div>
   </div>
 
-  <!-- History -->
-  <div class="history-bar" id="historyBar" style="display:none">
-    <strong style="font-size:12px">Imports:</strong>
-    <span id="historyList"></span>
+  <!-- HISTORY -->
+  <div class="hist" id="histBar" style="display:none">
+    <strong style="font-size:12px;white-space:nowrap">Import history:</strong>
+    <span id="histList"></span>
   </div>
 
-  <!-- Toolbar + Table -->
+  <!-- TOOLBAR + TABLE -->
   <div id="tableArea" style="display:none">
     <div class="toolbar">
       <div class="filters">
@@ -388,189 +199,206 @@
           <option>Pending</option><option>Confirmed</option><option>Review</option>
         </select>
         <label>Search:</label>
-        <input type="text" id="fSearch" placeholder="Search question..." oninput="renderTable()" style="width:160px" />
+        <input type="text" id="fSearch" placeholder="Search question..." oninput="renderTable()" style="width:160px;flex:none;" />
       </div>
-      <div style="display:flex;gap:8px">
-        <button onclick="exportCSV()">⬇ Export CSV</button>
-      </div>
+      <button onclick="exportCSV()">⬇ Export CSV</button>
     </div>
-
-    <div class="table-section">
-      <div class="table-scroll">
+    <div class="tbl-wrap">
+      <div class="tbl-scroll">
         <table>
-          <thead>
-            <tr>
-              <th class="row-num">#</th>
-              <th>Date</th>
-              <th>Q No.</th>
-              <th>Question / Context</th>
-              <th>Answer Options</th>
-              <th>Timestamp</th>
-              <th>Source</th>
-              <th>Edit Status</th>
-            </tr>
-          </thead>
-          <tbody id="tableBody"></tbody>
+          <thead><tr>
+            <th class="rn">#</th>
+            <th>Date</th>
+            <th>Q No.</th>
+            <th>Question / Context</th>
+            <th>Answer Options</th>
+            <th>Timestamp</th>
+            <th>Source</th>
+            <th>Edit Status</th>
+          </tr></thead>
+          <tbody id="tBody"></tbody>
         </table>
       </div>
     </div>
   </div>
 
-  <div id="emptyState" class="empty-state">
-    <div class="icon">📋</div>
+  <!-- EMPTY STATE -->
+  <div id="emptyState" class="empty">
+    <div class="ico">📋</div>
     <p>No records yet</p>
-    <span>Enter your API key, paste your Google Doc content, and click Parse & Import</span>
+    <span>Paste your Google Doc text above and click Parse &amp; Import</span>
   </div>
 
-</div>
+</div><!-- /main -->
 
 <script>
+// ─── STATE ───────────────────────────────────────────────
 let records = [];
 let undoStack = [];
 let importHistory = [];
 let docCount = 0;
 
-// Load saved key
-window.onload = () => {
-  const k = sessionStorage.getItem('anthropic_key');
-  if (k) document.getElementById('apiKey').value = k;
-};
-
-function saveKey() {
-  const k = document.getElementById('apiKey').value.trim();
-  if (!k) { showMsg('Please enter your API key.', 'error'); return; }
-  sessionStorage.setItem('anthropic_key', k);
-  showMsg('API key saved for this session.', 'success');
-}
-
-function getKey() {
-  return document.getElementById('apiKey').value.trim() || sessionStorage.getItem('anthropic_key') || '';
-}
-
+// ─── TABS ─────────────────────────────────────────────────
 function switchTab(name, btn) {
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-  document.getElementById('tab-' + name).classList.add('active');
-  btn.classList.add('active');
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('on'));
+  document.getElementById('tab-' + name).classList.add('on');
+  btn.classList.add('on');
 }
 
-async function doImportPaste() {
+// ─── IMPORT: PASTE ────────────────────────────────────────
+function doImportPaste() {
   const text = document.getElementById('pasteArea').value.trim();
-  const ref = document.getElementById('refUrl').value.trim();
-  if (!text) { showMsg('Please paste your document text first.', 'error'); return; }
-  await doImport(text, ref || 'Manual paste');
+  const ref  = document.getElementById('refUrl').value.trim();
+  if (!text) { showMsg('Please paste your document text first.', 'e'); return; }
+  const parsed = smartParse(text);
+  if (!parsed.length) { showMsg('No questions detected. Make sure the doc has numbered questions (Q1, 1., Question 1, etc.).', 'e'); return; }
+  commitImport(parsed, ref || 'Manual paste #' + (docCount + 1));
   document.getElementById('pasteArea').value = '';
   document.getElementById('refUrl').value = '';
 }
 
+// ─── IMPORT: URL ──────────────────────────────────────────
 async function doImportUrl() {
   const url = document.getElementById('autoUrl').value.trim();
-  if (!url) { showMsg('Please enter a Google Docs URL.', 'error'); return; }
+  if (!url) { showMsg('Please enter a Google Docs URL.', 'e'); return; }
   const id = extractDocId(url);
-  if (!id) { showMsg('Invalid Google Docs URL.', 'error'); return; }
+  if (!id) { showMsg('Invalid Google Docs URL — must contain /document/d/...', 'e'); return; }
 
-  showMsg('<span class="spinner"></span> Fetching document...', 'info');
+  showMsg('<span class="sp-anim"></span> Fetching document…', 'i');
+
   const exportUrl = `https://docs.google.com/document/d/${id}/export?format=txt`;
+  const proxies = [
+    `https://api.allorigins.win/raw?url=${encodeURIComponent(exportUrl)}`,
+    `https://corsproxy.io/?${encodeURIComponent(exportUrl)}`
+  ];
+
   let text = '';
-  try {
-    const r = await fetch(exportUrl);
-    if (!r.ok) throw new Error('HTTP ' + r.status);
-    text = await r.text();
-  } catch(e) {
-    // Try CORS proxy
-    try {
-      const proxy = `https://api.allorigins.win/raw?url=${encodeURIComponent(exportUrl)}`;
-      const r2 = await fetch(proxy);
-      if (!r2.ok) throw new Error('Proxy failed');
-      text = await r2.text();
-    } catch(e2) {
-      showMsg('Could not fetch automatically. Please use the <strong>Paste Doc Text</strong> tab instead — open the doc, press Ctrl+A, Ctrl+C, then paste.', 'error');
-      return;
-    }
+  for (const p of proxies) {
+    try { const r = await fetch(p); if (r.ok) { text = await r.text(); break; } } catch(e) {}
   }
-  await doImport(text, url);
+
+  if (!text) {
+    showMsg('Auto-fetch failed (CORS). Please switch to the <strong>Paste Doc Text</strong> tab — open the doc, press Ctrl+A → Ctrl+C, then paste here.', 'e');
+    return;
+  }
+
+  const parsed = smartParse(text);
+  if (!parsed.length) { showMsg('No questions detected in the document.', 'e'); return; }
+  commitImport(parsed, url);
   document.getElementById('autoUrl').value = '';
 }
 
-async function doImport(text, source) {
-  const key = getKey();
-  if (!key) { showMsg('Please enter your Anthropic API key first.', 'error'); return; }
-
-  showMsg('<span class="spinner"></span> Analyzing with AI — please wait...', 'info');
-
-  let parsed = [];
-  try {
-    parsed = await callClaude(key, text);
-  } catch(e) {
-    showMsg('AI error: ' + e.message, 'error'); return;
-  }
-
-  if (!parsed.length) { showMsg('No questions found in this document.', 'error'); return; }
-
+// ─── COMMIT IMPORT ────────────────────────────────────────
+function commitImport(parsed, source) {
   undoStack.push(JSON.parse(JSON.stringify(records)));
-  document.getElementById('undoBtn').disabled = false;
-
+  syncUndo();
   docCount++;
   const label = 'Doc ' + docCount;
   parsed.forEach(r => {
     r.id = Date.now() + Math.random();
     r.sourceLabel = label;
     r.sourceRef = source;
-    r.status = r.status || 'Pending';
   });
   records = [...records, ...parsed];
   importHistory.push({ label, count: parsed.length, time: new Date().toLocaleTimeString(), ref: source });
-
-  showMsg(`✓ Imported ${parsed.length} question(s) from ${label}.`, 'success');
+  showMsg(`✓ Imported ${parsed.length} question(s) as <strong>${label}</strong>.`, 's');
   refresh();
 }
 
-async function callClaude(apiKey, text) {
-  const prompt = `Extract all questions from this document. Return ONLY a JSON array — no markdown, no explanation, just raw JSON.
+// ─── SMART LOCAL PARSER ───────────────────────────────────
+// Handles virtually any Google Doc question format without any API
+function smartParse(raw) {
+  const lines = raw.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+  const results = [];
 
-Each object must have exactly these fields:
-- "date": date string (e.g. "Jan 15" or "2024-01-15"), empty string if not present
-- "questionNumber": question ID (e.g. "Q1", "1", "Question 1")  
-- "context": question text, max 300 chars
-- "options": answer options as single string (e.g. "A. Paris  B. London  C. Berlin  D. Rome"), empty string if none
-- "timestamp": video timestamp like "00:05:30", empty string if not found
-- "status": exactly "Pending", "Confirmed", or "Review" — default "Pending"
+  // Detect current date context as we scan
+  let currentDate = '';
 
-Document content:
----
-${text.slice(0, 10000)}
----
+  // Patterns
+  const dateLineRx   = /^(?:date|dated?)\s*[:\-–]\s*(.+)$/i;
+  const standaloneDateRx = /^(\d{1,2}[\s\-\/]+(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*[\s\-\/]+\d{2,4}|\d{4}[\-\/]\d{2}[\-\/]\d{2}|(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\s+\d{1,2},?\s+\d{4})$/i;
+  const qStartRx     = /^(Q\s*\.?\s*\d+|Question\s*\d+|\d+\s*[.)]\s+\S)/i;
+  const tsRx         = /(?:timestamp|time|ts|duration)\s*[:\-–]\s*([\d:hms .]+)/i;
+  const statusRx     = /(?:status|edit)\s*[:\-–]\s*(pending|confirmed|review|done|complete|ok)/i;
+  const optionsRx    = /^\s*(?:[A-D]\s*[.)]\s*.+(?:\s{2,}|\t)[A-D]\s*[.)]\s*|[A-D]\s*[.)]\s*.+)/i;
+  const inlineOptRx  = /\b([A-D])\s*[.)]\s*([^A-D\n]{2,40})(?=\s+[A-D][.)]\s*|\s*$)/gi;
 
-Return ONLY the JSON array. No other text.`;
+  let i = 0;
+  while (i < lines.length) {
+    const line = lines[i];
 
-  const res = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': apiKey,
-      'anthropic-version': '2023-06-01',
-      'anthropic-dangerous-direct-browser-calls': 'true'
-    },
-    body: JSON.stringify({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 2000,
-      messages: [{ role: 'user', content: prompt }]
-    })
-  });
+    // Date line
+    const dm = line.match(dateLineRx) || (standaloneDateRx.test(line) ? [null, line] : null);
+    if (dm) { currentDate = dm[1].trim(); i++; continue; }
 
-  if (!res.ok) {
-    const err = await res.text();
-    let msg = 'API error ' + res.status;
-    try { msg = JSON.parse(err).error?.message || msg; } catch(e) {}
-    throw new Error(msg);
+    // Question start
+    if (qStartRx.test(line)) {
+      const qNumMatch = line.match(/^(Q\s*\.?\s*\d+|Question\s*\d+|\d+\s*[.)])/i);
+      const qNum = qNumMatch ? qNumMatch[0].replace(/\s+/g,'').replace(/[.)]/,'') : ('Q' + (results.length + 1));
+      let contextLines = [line.replace(/^(Q\s*\.?\s*\d+[.):]?|Question\s*\d+[.):]?|\d+\s*[.)]\s*)/i,'').trim()];
+      let options = '', timestamp = '', status = 'Pending', date = currentDate;
+
+      // Scan following lines for this question's data
+      let j = i + 1;
+      while (j < lines.length && !qStartRx.test(lines[j])) {
+        const ll = lines[j];
+
+        // Date update mid-doc
+        const dm2 = ll.match(dateLineRx) || (standaloneDateRx.test(ll) ? [null, ll] : null);
+        if (dm2) { currentDate = dm2[1].trim(); date = currentDate; j++; continue; }
+
+        const tsM = ll.match(tsRx);
+        if (tsM) { timestamp = tsM[1].trim(); j++; continue; }
+
+        const stM = ll.match(statusRx);
+        if (stM) {
+          const sv = stM[1].toLowerCase();
+          status = sv === 'done' || sv === 'complete' || sv === 'ok' ? 'Confirmed' : sv.charAt(0).toUpperCase() + sv.slice(1);
+          j++; continue;
+        }
+
+        // Options line (A. ... B. ... style)
+        if (optionsRx.test(ll)) {
+          const opts = [];
+          let m; inlineOptRx.lastIndex = 0;
+          while ((m = inlineOptRx.exec(ll)) !== null) opts.push(m[1] + '. ' + m[2].trim());
+          options = opts.length ? opts.join('  ') : ll;
+          j++; continue;
+        }
+
+        // Extra context lines (not a new question, not blank)
+        if (ll.length > 3 && contextLines.join(' ').length < 350) {
+          contextLines.push(ll);
+        }
+        j++;
+      }
+
+      const context = contextLines.join(' ').replace(/\s+/g,' ').trim();
+
+      if (context.length > 1) {
+        results.push({ questionNumber: qNum, context, options, timestamp, status, date, id: null, sourceLabel: '', sourceRef: '' });
+      }
+
+      i = j;
+      continue;
+    }
+
+    i++;
   }
 
-  const data = await res.json();
-  let raw = data.content.map(c => c.text || '').join('').trim();
-  raw = raw.replace(/```json/g,'').replace(/```/g,'').trim();
-  const a = raw.indexOf('['), b = raw.lastIndexOf(']');
-  if (a === -1 || b === -1) throw new Error('No JSON array in response');
-  return JSON.parse(raw.slice(a, b+1));
+  // Fallback: if nothing found with Q-pattern, try numbered lines
+  if (results.length === 0) {
+    const numRx = /^(\d+)\s*[.):\-]\s*(.+)/;
+    lines.forEach(l => {
+      const m = l.match(numRx);
+      if (m && m[2].length > 5) {
+        results.push({ questionNumber: m[1], context: m[2].trim(), options: '', timestamp: '', status: 'Pending', date: currentDate });
+      }
+    });
+  }
+
+  return results;
 }
 
 function extractDocId(url) {
@@ -578,64 +406,70 @@ function extractDocId(url) {
   return m ? m[1] : null;
 }
 
-function updateStatus(id, val) {
-  undoStack.push(JSON.parse(JSON.stringify(records)));
-  document.getElementById('undoBtn').disabled = false;
-  const r = records.find(r => r.id === id);
-  if (r) r.status = val;
-  refresh();
-}
-
+// ─── UNDO / CLEAR ─────────────────────────────────────────
 function undoLast() {
   if (!undoStack.length) return;
   records = undoStack.pop();
-  if (!undoStack.length) document.getElementById('undoBtn').disabled = true;
-  if (importHistory.length > 0) {
-    const total = importHistory.reduce((s, h) => s + h.count, 0);
-    if (records.length < total) { importHistory.pop(); docCount = Math.max(0, docCount - 1); }
+  syncUndo();
+  // Sync importHistory count
+  const total = records.length;
+  let sum = 0;
+  let trimIdx = importHistory.length;
+  for (let k = 0; k < importHistory.length; k++) {
+    sum += importHistory[k].count;
+    if (sum > total) { trimIdx = k; break; }
   }
-  showMsg('Undo successful.', 'success');
+  if (trimIdx < importHistory.length) { importHistory = importHistory.slice(0, trimIdx); docCount = trimIdx; }
+  showMsg('Undo successful.', 's');
   refresh();
 }
 
 function clearAll() {
   if (!records.length) return;
-  if (!confirm('Clear all records? (You can undo this action)')) return;
+  if (!confirm('Clear all records? You can undo this.')) return;
   undoStack.push(JSON.parse(JSON.stringify(records)));
-  document.getElementById('undoBtn').disabled = false;
+  syncUndo();
   records = []; importHistory = []; docCount = 0;
-  showMsg('All records cleared. Click Undo to restore.', 'success');
+  showMsg('All records cleared. Click ↩ Undo to restore.', 's');
   refresh();
 }
 
-function refresh() {
-  updateStats();
-  updateHistory();
-  updateDateFilter();
-  renderTable();
+function syncUndo() {
+  document.getElementById('undoBtn').disabled = undoStack.length === 0;
 }
+
+function updateStatus(id, val) {
+  undoStack.push(JSON.parse(JSON.stringify(records)));
+  syncUndo();
+  const r = records.find(r => r.id === id);
+  if (r) r.status = val;
+  refresh();
+}
+
+// ─── REFRESH ALL ──────────────────────────────────────────
+function refresh() { updateStats(); updateHistory(); updateDateFilter(); renderTable(); }
 
 function updateStats() {
   const t = records.length;
   document.getElementById('sTotal').textContent = t;
-  document.getElementById('sPending').textContent = records.filter(r => r.status === 'Pending').length;
-  document.getElementById('sConfirmed').textContent = records.filter(r => r.status === 'Confirmed').length;
-  document.getElementById('sReview').textContent = records.filter(r => r.status === 'Review').length;
+  document.getElementById('sPend').textContent = records.filter(r => r.status === 'Pending').length;
+  document.getElementById('sConf').textContent = records.filter(r => r.status === 'Confirmed').length;
+  document.getElementById('sRev').textContent  = records.filter(r => r.status === 'Review').length;
   document.getElementById('sDocs').textContent = new Set(records.map(r => r.sourceLabel)).size;
-  document.getElementById('statsGrid').style.display = t > 0 ? 'grid' : 'none';
-  document.getElementById('tableArea').style.display = t > 0 ? 'block' : 'none';
+  document.getElementById('statsGrid').style.display  = t > 0 ? 'grid' : 'none';
+  document.getElementById('tableArea').style.display  = t > 0 ? 'block' : 'none';
   document.getElementById('emptyState').style.display = t > 0 ? 'none' : 'block';
-  const badge = document.getElementById('headerBadge');
-  badge.style.display = t > 0 ? 'inline' : 'none';
-  badge.textContent = t + ' question' + (t !== 1 ? 's' : '');
+  const b = document.getElementById('hdrBadge');
+  b.style.display = t > 0 ? 'inline' : 'none';
+  b.textContent = t + ' question' + (t !== 1 ? 's' : '');
 }
 
 function updateHistory() {
-  const bar = document.getElementById('historyBar');
+  const bar = document.getElementById('histBar');
   if (!importHistory.length) { bar.style.display = 'none'; return; }
   bar.style.display = 'flex';
-  document.getElementById('historyList').innerHTML = importHistory.map(h =>
-    `<span class="source-tag" title="${escA(h.ref)}">${esc(h.label)} · ${h.count} rows · ${h.time}</span>`
+  document.getElementById('histList').innerHTML = importHistory.map(h =>
+    `<span class="stag" title="${ea(h.ref)}">${e(h.label)} · ${h.count} rows · ${h.time}</span>`
   ).join(' ');
 }
 
@@ -643,7 +477,7 @@ function updateDateFilter() {
   const sel = document.getElementById('fDate');
   const cur = sel.value;
   const dates = [...new Set(records.map(r => r.date || '').filter(Boolean))].sort();
-  sel.innerHTML = '<option value="">All dates</option>' + dates.map(d => `<option value="${escA(d)}">${esc(d)}</option>`).join('');
+  sel.innerHTML = '<option value="">All dates</option>' + dates.map(d => `<option value="${ea(d)}">${e(d)}</option>`).join('');
   if (dates.includes(cur)) sel.value = cur;
 }
 
@@ -654,67 +488,65 @@ function getFiltered() {
   return records.filter(r => {
     if (fd && r.date !== fd) return false;
     if (fs && r.status !== fs) return false;
-    if (fq && !(r.context || '').toLowerCase().includes(fq) && !(r.questionNumber || '').toLowerCase().includes(fq)) return false;
+    if (fq && !(r.context||'').toLowerCase().includes(fq) && !(r.questionNumber||'').toLowerCase().includes(fq)) return false;
     return true;
   });
 }
 
 function renderTable() {
   const rows = getFiltered();
-  const tbody = document.getElementById('tableBody');
+  const tbody = document.getElementById('tBody');
   if (!rows.length) {
-    tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state" style="padding:32px"><div class="icon">🔍</div><p>No matching records</p></div></td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="8"><div class="empty" style="padding:32px"><div class="ico">🔍</div><p>No matching records</p></div></td></tr>`;
     return;
   }
   tbody.innerHTML = rows.map((r, i) => {
-    const sc = r.status === 'Confirmed' ? 's-confirmed' : r.status === 'Review' ? 's-review' : 's-pending';
+    const cls = r.status === 'Confirmed' ? 'sc2' : r.status === 'Review' ? 'sr' : 'sp';
     return `<tr>
-      <td class="row-num">${i + 1}</td>
-      <td class="date-cell">${esc(r.date) || '<span style="color:var(--text3)">—</span>'}</td>
-      <td class="q-num">${esc(r.questionNumber)}</td>
-      <td><div class="context-cell" title="${escA(r.context)}">${esc(r.context)}</div></td>
-      <td><div class="options-cell" title="${escA(r.options)}">${esc(r.options) || '<span style="color:var(--text3)">—</span>'}</div></td>
-      <td class="ts-cell">${esc(r.timestamp) || '—'}</td>
-      <td><span class="source-tag" title="${escA(r.sourceRef)}" style="font-size:11px">${esc(r.sourceLabel)}</span></td>
+      <td class="rn">${i+1}</td>
+      <td class="dt">${e(r.date)||'<span style="color:var(--text3)">—</span>'}</td>
+      <td class="qn">${e(r.questionNumber)}</td>
+      <td><div class="ctx" title="${ea(r.context)}">${e(r.context)}</div></td>
+      <td><div class="opt" title="${ea(r.options)}">${e(r.options)||'<span style="color:var(--text3)">—</span>'}</div></td>
+      <td class="ts">${e(r.timestamp)||'—'}</td>
+      <td><span class="stag" style="font-size:11px" title="${ea(r.sourceRef)}">${e(r.sourceLabel)}</span></td>
       <td>
-        <select class="status-sel ${sc}" data-id="${r.id}" onchange="updateStatus(${r.id}, this.value); this.className='status-sel s-'+this.value.toLowerCase()">
-          <option${r.status === 'Pending' ? ' selected' : ''}>Pending</option>
-          <option${r.status === 'Confirmed' ? ' selected' : ''}>Confirmed</option>
-          <option${r.status === 'Review' ? ' selected' : ''}>Review</option>
+        <select class="ss ${cls}" onchange="updateStatus(${r.id},this.value);this.className='ss '+(this.value==='Confirmed'?'sc2':this.value==='Review'?'sr':'sp')">
+          <option${r.status==='Pending'?' selected':''}>Pending</option>
+          <option${r.status==='Confirmed'?' selected':''}>Confirmed</option>
+          <option${r.status==='Review'?' selected':''}>Review</option>
         </select>
       </td>
     </tr>`;
   }).join('');
 }
 
+// ─── EXPORT CSV ───────────────────────────────────────────
 function exportCSV() {
   const rows = getFiltered();
-  const header = ['Date', 'Question Number', 'Context', 'Options', 'Timestamp', 'Source', 'Status'];
-  const lines = [header.join(',')];
-  rows.forEach(r => {
-    lines.push([r.date, r.questionNumber, r.context, r.options, r.timestamp, r.sourceLabel, r.status]
-      .map(v => `"${(v || '').replace(/"/g, '""')}"`)
-      .join(','));
-  });
+  const hdr = ['Date','Q No.','Context','Options','Timestamp','Source','Status'];
+  const lines = [hdr.join(','), ...rows.map(r =>
+    [r.date,r.questionNumber,r.context,r.options,r.timestamp,r.sourceLabel,r.status]
+      .map(v => `"${(v||'').replace(/"/g,'""')}"`)
+      .join(',')
+  )];
   const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([lines.join('\n')], { type: 'text/csv' }));
-  a.download = 'video_editing_dashboard.csv';
+  a.href = URL.createObjectURL(new Blob([lines.join('\n')], {type:'text/csv'}));
+  a.download = 'editing_dashboard.csv';
   a.click();
 }
 
+// ─── MESSAGES ─────────────────────────────────────────────
 function showMsg(html, type) {
-  const area = document.getElementById('msgArea');
-  const cls = type === 'error' ? 'msg-error' : type === 'success' ? 'msg-success' : 'msg-info';
-  area.innerHTML = html ? `<div class="msg ${cls}">${html}</div>` : '';
-  if (type === 'success') setTimeout(() => area.innerHTML = '', 3000);
+  const w = document.getElementById('msgWrap');
+  const cls = type==='e' ? 'm-e' : type==='s' ? 'm-s' : 'm-i';
+  w.innerHTML = html ? `<div class="msg ${cls}">${html}</div>` : '';
+  if (type === 's') setTimeout(() => w.innerHTML = '', 3500);
 }
 
-function esc(s) {
-  return (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-}
-function escA(s) {
-  return (s || '').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-}
+// ─── UTILS ────────────────────────────────────────────────
+function e(s)  { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function ea(s) { return (s||'').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
 </script>
 </body>
 </html>
