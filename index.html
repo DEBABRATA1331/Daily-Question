@@ -104,9 +104,9 @@ tbody tr:hover{background:var(--bg2);}
 td{padding:10px 14px;font-size:13px;vertical-align:top;}
 .rn{color:var(--text3);font-size:12px;width:36px;}
 .qn{font-weight:600;white-space:nowrap;}
-.ctx{max-width:230px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:help;}
-.opt{max-width:190px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12px;color:var(--text2);cursor:help;}
-.ts{font-family:monospace;font-size:12px;white-space:nowrap;color:var(--text2);}
+.ctx{max-width:240px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:help;}
+.opt{max-width:260px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12px;color:var(--text2);cursor:help;}
+.ts{font-family:monospace;font-size:12px;white-space:nowrap;color:var(--text2);max-width:160px;}
 .dt{font-size:12px;white-space:nowrap;}
 
 select.ss{border:0.5px solid var(--border2);border-radius:var(--r);padding:4px 8px;font-size:12px;cursor:pointer;font-family:inherit;}
@@ -307,93 +307,146 @@ function commitImport(parsed, source) {
 }
 
 // ─── SMART LOCAL PARSER ───────────────────────────────────
-// Handles virtually any Google Doc question format without any API
+// Precisely handles the Google Doc format:
+//   Question 1: Title (MCQ - Single Correct)
+//   Video Reference: [00:00:26] - [00:00:44]
+//   Question: actual question text
+//   Options:
+//     1. option one
+//     2. option two
+//   Time to Solve: 20 Seconds
+//   Answer: 2
+//   Status: Confirmed
+// Also handles generic Q1/Q2 and other formats as fallback.
 function smartParse(raw) {
-  const lines = raw.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+  const lines = raw.split('\n').map(l => l.trim());
   const results = [];
-
-  // Detect current date context as we scan
   let currentDate = '';
 
-  // Patterns
-  const dateLineRx   = /^(?:date|dated?)\s*[:\-–]\s*(.+)$/i;
-  const standaloneDateRx = /^(\d{1,2}[\s\-\/]+(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*[\s\-\/]+\d{2,4}|\d{4}[\-\/]\d{2}[\-\/]\d{2}|(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\s+\d{1,2},?\s+\d{4})$/i;
-  const qStartRx     = /^(Q\s*\.?\s*\d+|Question\s*\d+|\d+\s*[.)]\s+\S)/i;
-  const tsRx         = /(?:timestamp|time|ts|duration)\s*[:\-–]\s*([\d:hms .]+)/i;
-  const statusRx     = /(?:status|edit)\s*[:\-–]\s*(pending|confirmed|review|done|complete|ok)/i;
-  const optionsRx    = /^\s*(?:[A-D]\s*[.)]\s*.+(?:\s{2,}|\t)[A-D]\s*[.)]\s*|[A-D]\s*[.)]\s*.+)/i;
-  const inlineOptRx  = /\b([A-D])\s*[.)]\s*([^A-D\n]{2,40})(?=\s+[A-D][.)]\s*|\s*$)/gi;
+  // ── PASS 1: split into question blocks ──────────────────
+  // Matches "Question N: title" or "Q1. title" — NOT plain "1. text" (those are options)
+  const qHeadRx = /^(?:Question\s+(\d+)\s*[:\-–]\s*(.+)|Q\s*\.?\s*(\d+)\s*[.):\-]\s*(\S.*))/i;
 
-  let i = 0;
-  while (i < lines.length) {
-    const line = lines[i];
+  const blocks = [];
+  let cur = null;
 
-    // Date line
-    const dm = line.match(dateLineRx) || (standaloneDateRx.test(line) ? [null, line] : null);
-    if (dm) { currentDate = dm[1].trim(); i++; continue; }
+  for (let i = 0; i < lines.length; i++) {
+    const l = lines[i];
+    if (!l) continue;
 
-    // Question start
-    if (qStartRx.test(line)) {
-      const qNumMatch = line.match(/^(Q\s*\.?\s*\d+|Question\s*\d+|\d+\s*[.)])/i);
-      const qNum = qNumMatch ? qNumMatch[0].replace(/\s+/g,'').replace(/[.)]/,'') : ('Q' + (results.length + 1));
-      let contextLines = [line.replace(/^(Q\s*\.?\s*\d+[.):]?|Question\s*\d+[.):]?|\d+\s*[.)]\s*)/i,'').trim()];
-      let options = '', timestamp = '', status = 'Pending', date = currentDate;
+    // Date line (standalone or labeled)
+    const dateLabelM = l.match(/^(?:date|dated?)\s*[:\-–]\s*(.+)$/i);
+    const dateStdM   = l.match(/^(\d{1,2}[\s\-\/]+(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*[\s\-\/]+\d{2,4}|\d{4}[\-\/]\d{2}[\-\/]\d{2})$/i);
+    if (dateLabelM) { currentDate = dateLabelM[1].trim(); continue; }
+    if (dateStdM)   { currentDate = dateStdM[1].trim(); continue; }
 
-      // Scan following lines for this question's data
-      let j = i + 1;
-      while (j < lines.length && !qStartRx.test(lines[j])) {
-        const ll = lines[j];
+    const qm = l.match(qHeadRx);
+    if (qm) {
+      if (cur) blocks.push(cur);
+      // Extract number and title from whichever group matched
+      let num, title;
+      if (qm[1]) { num = 'Q' + qm[1]; title = qm[2] ? qm[2].trim() : ''; }
+      else { num = 'Q' + qm[3]; title = qm[4] ? qm[4].trim() : ''; }
+      cur = { num, title, lines: [], date: currentDate };
+    } else if (cur) {
+      cur.lines.push(l);
+    }
+  }
+  if (cur) blocks.push(cur);
 
-        // Date update mid-doc
-        const dm2 = ll.match(dateLineRx) || (standaloneDateRx.test(ll) ? [null, ll] : null);
-        if (dm2) { currentDate = dm2[1].trim(); date = currentDate; j++; continue; }
+  // ── PASS 2: extract fields from each block ───────────────
+  for (const blk of blocks) {
+    let context  = blk.title;
+    let timestamp = '';
+    let options  = '';
+    let status   = 'Pending';
+    let answer   = '';
+    let date     = blk.date;
+    let inOptions = false;
+    let optList  = [];
+    let questionText = '';
 
-        const tsM = ll.match(tsRx);
-        if (tsM) { timestamp = tsM[1].trim(); j++; continue; }
+    for (let i = 0; i < blk.lines.length; i++) {
+      const l = blk.lines[i];
 
-        const stM = ll.match(statusRx);
-        if (stM) {
-          const sv = stM[1].toLowerCase();
-          status = sv === 'done' || sv === 'complete' || sv === 'ok' ? 'Confirmed' : sv.charAt(0).toUpperCase() + sv.slice(1);
-          j++; continue;
-        }
+      // Date update inside block
+      const dateLabelM = l.match(/^(?:date|dated?)\s*[:\-–]\s*(.+)$/i);
+      if (dateLabelM) { date = dateLabelM[1].trim(); currentDate = date; inOptions = false; continue; }
 
-        // Options line (A. ... B. ... style)
-        if (optionsRx.test(ll)) {
-          const opts = [];
-          let m; inlineOptRx.lastIndex = 0;
-          while ((m = inlineOptRx.exec(ll)) !== null) opts.push(m[1] + '. ' + m[2].trim());
-          options = opts.length ? opts.join('  ') : ll;
-          j++; continue;
-        }
+      // Video Reference: [00:00:26] - [00:00:44]  OR  Timestamp: 00:05:30
+      const vidRefM = l.match(/video\s*reference\s*[:\-–]\s*\[?([\d:]+)\]?\s*(?:-|–|to)?\s*\[?([\d:]*)\]?/i);
+      const tsM     = l.match(/^(?:timestamp|ts)\s*[:\-–]\s*(.+)$/i);
+      const ttSolveM = l.match(/^time\s*to\s*solve\s*[:\-–]\s*(.+)$/i);
+      if (vidRefM) {
+        timestamp = vidRefM[2] ? vidRefM[1] + ' – ' + vidRefM[2] : vidRefM[1];
+        inOptions = false; continue;
+      }
+      if (tsM) { if (!timestamp) timestamp = tsM[1].trim(); inOptions = false; continue; }
+      if (ttSolveM) { if (!timestamp) timestamp = ttSolveM[1].trim(); inOptions = false; continue; }
 
-        // Extra context lines (not a new question, not blank)
-        if (ll.length > 3 && contextLines.join(' ').length < 350) {
-          contextLines.push(ll);
-        }
-        j++;
+      // Question: actual text
+      const qTextM = l.match(/^question\s*[:\-–]\s*(.+)$/i);
+      if (qTextM) { questionText = qTextM[1].trim(); inOptions = false; continue; }
+
+      // Options: (label line — next lines are the actual options)
+      if (/^options?\s*[:\-–]?\s*$/i.test(l)) { inOptions = true; optList = []; continue; }
+
+      // Numbered option lines: "1. text" or "2. text"
+      const numOptM = l.match(/^(\d+)\s*[.)]\s+(.+)$/);
+      if (numOptM && inOptions) { optList.push(numOptM[1] + '. ' + numOptM[2].trim()); continue; }
+
+      // Lettered option lines: "A. text" or "(A) text"
+      const letOptM = l.match(/^\(?([A-D])\)?\s*[.)]\s*(.+)$/i);
+      if (letOptM && inOptions) { optList.push(letOptM[1].toUpperCase() + '. ' + letOptM[2].trim()); continue; }
+
+      // Inline options on one line: "A. foo  B. bar  C. baz"
+      if (/\b[A-D]\s*[.)]\s*.+\b[A-D]\s*[.)]/i.test(l) && !inOptions) {
+        const m = [...l.matchAll(/([A-D])\s*[.)]\s*([^A-D\n]{2,60}?)(?=\s+[A-D][.)]\s*|$)/gi)];
+        if (m.length >= 2) { optList = m.map(x => x[1].toUpperCase() + '. ' + x[2].trim()); inOptions = false; continue; }
       }
 
-      const context = contextLines.join(' ').replace(/\s+/g,' ').trim();
+      // Answer line
+      const ansM = l.match(/^(?:answer|correct\s*answer|ans)\s*[:\-–]\s*(.+)$/i);
+      if (ansM) { answer = ansM[1].trim(); inOptions = false; continue; }
 
-      if (context.length > 1) {
-        results.push({ questionNumber: qNum, context, options, timestamp, status, date, id: null, sourceLabel: '', sourceRef: '' });
+      // Status line
+      const stM = l.match(/^(?:status|edit\s*status)\s*[:\-–]\s*(pending|confirmed|review|done|complete|ok)/i);
+      if (stM) {
+        const sv = stM[1].toLowerCase();
+        status = (sv === 'done' || sv === 'complete' || sv === 'ok') ? 'Confirmed' : sv.charAt(0).toUpperCase() + sv.slice(1);
+        inOptions = false; continue;
       }
 
-      i = j;
-      continue;
+      // If we hit a non-option line while inOptions, close options
+      if (inOptions && l.length > 0 && !numOptM && !letOptM) inOptions = false;
+
+      // Append to context if nothing else matched and context is short
+      if (!inOptions && context.length < 300 && l.length > 3) {
+        // skip pure label lines like "Options:", "Video Reference:" etc.
+        if (!/^(?:options?|video\s*ref|answer|status|correct|time)\s*[:\-–]/i.test(l)) {
+          if (!questionText) context += (context ? ' ' : '') + l;
+        }
+      }
     }
 
-    i++;
+    // Prefer explicit "Question:" text over title for context
+    if (questionText) context = blk.title ? blk.title + ' — ' + questionText : questionText;
+
+    // Build options string
+    options = optList.join('  |  ');
+    if (answer) options += (options ? '  ✓ Ans: ' : 'Ans: ') + answer;
+
+    if (context.length > 1) {
+      results.push({ questionNumber: blk.num, context, options, timestamp, status, date, id: null, sourceLabel: '', sourceRef: '' });
+    }
   }
 
-  // Fallback: if nothing found with Q-pattern, try numbered lines
+  // ── FALLBACK: plain numbered list ────────────────────────
   if (results.length === 0) {
-    const numRx = /^(\d+)\s*[.):\-]\s*(.+)/;
     lines.forEach(l => {
-      const m = l.match(numRx);
+      const m = l.match(/^(\d+)\s*[.):\-]\s*(.+)/);
       if (m && m[2].length > 5) {
-        results.push({ questionNumber: m[1], context: m[2].trim(), options: '', timestamp: '', status: 'Pending', date: currentDate });
+        results.push({ questionNumber: m[1], context: m[2].trim(), options: '', timestamp: '', status: 'Pending', date: currentDate, id: null, sourceLabel: '', sourceRef: '' });
       }
     });
   }
