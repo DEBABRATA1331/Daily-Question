@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Video Editing Dashboard</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --bg2: #f7f7f5;
+    --bg3: #f0efec;
+    --text: #1a1a18;
+    --text2: #6b6b67;
+    --text3: #9b9b97;
+    --border: rgba(0,0,0,0.1);
+    --border2: rgba(0,0,0,0.18);
+    --info-bg: #e6f1fb;
+    --info-text: #185fa5;
+    --info-border: #b5d4f4;
+    --success-bg: #eaf3de;
+    --success-text: #3b6d11;
+    --success-border: #c0dd97;
+    --warn-bg: #faeeda;
+    --warn-text: #854f0b;
+    --warn-border: #fac775;
+    --danger-bg: #fcebeb;
+    --danger-text: #a32d2d;
+    --danger-border: #f7c1c1;
+    --radius: 8px;
+    --radius-lg: 12px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1e1e1c;
+      --bg2: #282826;
+      --bg3: #323230;
+      --text: #e8e8e4;
+      --text2: #9b9b97;
+      --text3: #6b6b67;
+      --border: rgba(255,255,255,0.1);
+      --border2: rgba(255,255,255,0.18);
+      --info-bg: #0c2540;
+      --info-text: #85b7eb;
+      --info-border: #185fa5;
+      --success-bg: #172a08;
+      --success-text: #97c459;
+      --success-border: #3b6d11;
+      --warn-bg: #2a1e08;
+      --warn-text: #fac775;
+      --warn-border: #854f0b;
+      --danger-bg: #2a0f0f;
+      --danger-text: #f09595;
+      --danger-border: #a32d2d;
+    }
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg3);
+    color: var(--text);
+    font-size: 14px;
+    min-height: 100vh;
+  }
+
+  .header {
+    background: var(--bg);
+    border-bottom: 0.5px solid var(--border);
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header h1 { font-size: 17px; font-weight: 600; letter-spacing: -0.02em; flex: 1; }
+  .header-badge { background: var(--info-bg); color: var(--info-text); font-size: 11px; padding: 3px 10px; border-radius: 99px; font-weight: 500; }
+
+  .main { max-width: 1280px; margin: 0 auto; padding: 20px 24px; }
+
+  /* API Key section */
+  .api-section {
+    background: var(--bg);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 16px 20px;
+    margin-bottom: 16px;
+  }
+  .api-section label { font-size: 12px; font-weight: 500; color: var(--text2); display: block; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.04em; }
+  .api-row { display: flex; gap: 8px; }
+  .api-row input { flex: 1; padding: 9px 12px; border: 0.5px solid var(--border2); border-radius: var(--radius); background: var(--bg2); color: var(--text); font-size: 13px; font-family: monospace; }
+  .api-row input:focus { outline: none; border-color: var(--info-text); }
+  .api-hint { font-size: 11px; color: var(--text3); margin-top: 6px; }
+  .api-hint a { color: var(--info-text); }
+
+  /* Import section */
+  .import-section {
+    background: var(--bg);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 16px 20px;
+    margin-bottom: 16px;
+  }
+  .import-section h2 { font-size: 14px; font-weight: 500; margin-bottom: 12px; }
+
+  .tabs { display: flex; gap: 2px; margin-bottom: 14px; background: var(--bg2); border-radius: var(--radius); padding: 3px; width: fit-content; }
+  .tab { padding: 6px 16px; border-radius: 6px; border: none; background: transparent; color: var(--text2); font-size: 13px; cursor: pointer; transition: all 0.15s; }
+  .tab.active { background: var(--bg); color: var(--text); font-weight: 500; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  .hint-box { background: var(--info-bg); border: 0.5px solid var(--info-border); border-radius: var(--radius); padding: 10px 14px; font-size: 12px; color: var(--info-text); margin-bottom: 12px; line-height: 1.6; }
+  .hint-box code { background: rgba(0,0,0,0.08); padding: 1px 5px; border-radius: 3px; font-family: monospace; }
+
+  .input-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+  .input-row input[type=url], .input-row input[type=text] {
+    flex: 1; min-width: 220px;
+    padding: 9px 12px;
+    border: 0.5px solid var(--border2);
+    border-radius: var(--radius);
+    background: var(--bg2);
+    color: var(--text);
+    font-size: 13px;
+  }
+  .input-row input:focus { outline: none; border-color: var(--info-text); }
+
+  textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 0.5px solid var(--border2);
+    border-radius: var(--radius);
+    background: var(--bg2);
+    color: var(--text);
+    font-size: 13px;
+    font-family: monospace;
+    resize: vertical;
+    min-height: 150px;
+    line-height: 1.5;
+  }
+  textarea:focus { outline: none; border-color: var(--info-text); }
+
+  .btn-row { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+
+  button {
+    padding: 8px 16px;
+    border: 0.5px solid var(--border2);
+    border-radius: var(--radius);
+    background: var(--bg);
+    color: var(--text);
+    cursor: pointer;
+    font-size: 13px;
+    font-family: inherit;
+    white-space: nowrap;
+    transition: background 0.12s;
+  }
+  button:hover { background: var(--bg2); }
+  button:active { transform: scale(0.98); }
+  button:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+  .btn-primary { background: var(--info-bg); color: var(--info-text); border-color: var(--info-border); font-weight: 500; }
+  .btn-primary:hover { filter: brightness(0.95); }
+  .btn-danger { background: var(--danger-bg); color: var(--danger-text); border-color: var(--danger-border); }
+
+  /* Messages */
+  .msg { border-radius: var(--radius); padding: 10px 14px; font-size: 13px; margin-bottom: 14px; line-height: 1.5; }
+  .msg-error { background: var(--danger-bg); color: var(--danger-text); border: 0.5px solid var(--danger-border); }
+  .msg-success { background: var(--success-bg); color: var(--success-text); border: 0.5px solid var(--success-border); }
+  .msg-info { background: var(--info-bg); color: var(--info-text); border: 0.5px solid var(--info-border); }
+
+  .spinner {
+    display: inline-block; width: 14px; height: 14px;
+    border: 2px solid rgba(0,0,0,0.15); border-top-color: var(--info-text);
+    border-radius: 50%; animation: spin 0.7s linear infinite;
+    vertical-align: middle; margin-right: 6px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Stats */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .stat-card {
+    background: var(--bg);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 14px 16px;
+  }
+  .stat-label { font-size: 11px; color: var(--text2); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
+  .stat-val { font-size: 26px; font-weight: 600; letter-spacing: -0.03em; }
+  .stat-val.pend { color: var(--warn-text); }
+  .stat-val.conf { color: var(--success-text); }
+  .stat-val.rev { color: var(--info-text); }
+
+  /* History */
+  .history-bar {
+    background: var(--bg);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 10px 14px;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    font-size: 12px;
+    color: var(--text2);
+  }
+  .source-tag {
+    display: inline-block;
+    background: var(--info-bg);
+    color: var(--info-text);
+    border-radius: var(--radius);
+    padding: 3px 9px;
+    font-size: 11px;
+    font-weight: 500;
+    cursor: default;
+  }
+
+  /* Toolbar */
+  .toolbar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .filters { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .filters label { font-size: 12px; color: var(--text2); }
+  .filters select, .filters input[type=text] {
+    padding: 6px 10px;
+    border: 0.5px solid var(--border2);
+    border-radius: var(--radius);
+    background: var(--bg);
+    color: var(--text);
+    font-size: 13px;
+  }
+  .filters select:focus, .filters input:focus { outline: none; }
+
+  /* Table */
+  .table-section {
+    background: var(--bg);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+  }
+  .table-scroll { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; min-width: 920px; }
+  thead th {
+    background: var(--bg2);
+    font-weight: 500;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 11px 14px;
+    text-align: left;
+    border-bottom: 0.5px solid var(--border);
+    color: var(--text2);
+    white-space: nowrap;
+    position: sticky;
+    top: 52px;
+  }
+  tbody tr { border-bottom: 0.5px solid var(--border); transition: background 0.1s; }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: var(--bg2); }
+  td { padding: 10px 14px; font-size: 13px; vertical-align: top; }
+
+  .row-num { color: var(--text3); font-size: 12px; width: 36px; }
+  .q-num { font-weight: 600; white-space: nowrap; font-size: 13px; }
+  .context-cell { max-width: 220px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: help; }
+  .options-cell { max-width: 180px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 12px; color: var(--text2); cursor: help; }
+  .ts-cell { font-family: monospace; font-size: 12px; white-space: nowrap; color: var(--text2); }
+  .date-cell { font-size: 12px; white-space: nowrap; }
+
+  select.status-sel {
+    border: 0.5px solid var(--border2);
+    border-radius: var(--radius);
+    background: var(--bg2);
+    color: var(--text);
+    padding: 4px 8px;
+    font-size: 12px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  select.status-sel.s-pending { background: var(--warn-bg); color: var(--warn-text); border-color: var(--warn-border); }
+  select.status-sel.s-confirmed { background: var(--success-bg); color: var(--success-text); border-color: var(--success-border); }
+  select.status-sel.s-review { background: var(--info-bg); color: var(--info-text); border-color: var(--info-border); }
+
+  .empty-state { text-align: center; padding: 48px 24px; color: var(--text2); }
+  .empty-state .icon { font-size: 36px; margin-bottom: 14px; }
+  .empty-state p { font-size: 15px; color: var(--text); margin-bottom: 6px; font-weight: 500; }
+  .empty-state span { font-size: 13px; }
+
+  @media (max-width: 600px) {
+    .main { padding: 12px; }
+    .header { padding: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>🎬 Video Editing Dashboard</h1>
+  <span class="header-badge" id="headerBadge" style="display:none">0 questions</span>
+</div>
+
+<div class="main">
+
+  <!-- API Key -->
+  <div class="api-section">
+    <label>Anthropic API Key</label>
+    <div class="api-row">
+      <input type="password" id="apiKey" placeholder="sk-ant-api03-..." autocomplete="off" />
+      <button onclick="saveKey()">Save Key</button>
+    </div>
+    <p class="api-hint">
+      Your key is stored only in this browser session (never sent anywhere except api.anthropic.com).
+      Get one at <a href="https://console.anthropic.com/" target="_blank">console.anthropic.com</a>.
+    </p>
+  </div>
+
+  <!-- Import -->
+  <div class="import-section">
+    <h2>Import Questions</h2>
+
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('paste',this)">Paste Doc Text</button>
+      <button class="tab" onclick="switchTab('url',this)">Auto URL</button>
+    </div>
+
+    <div id="tab-paste" class="tab-panel active">
+      <div class="hint-box">
+        Open your Google Doc → press <code>Ctrl+A</code> then <code>Ctrl+C</code> → paste below. Optional: add the doc URL for reference.
+      </div>
+      <div class="input-row">
+        <input type="url" id="refUrl" placeholder="Doc URL (optional, for reference only)" />
+      </div>
+      <textarea id="pasteArea" placeholder="Paste your Google Doc content here...&#10;&#10;Example:&#10;Date: 15 Jan 2024&#10;Q1. What is photosynthesis?&#10;A. Process of making food  B. Breathing  C. Digestion  D. Reproduction&#10;Timestamp: 00:05:30&#10;Status: Pending"></textarea>
+      <div class="btn-row">
+        <button class="btn-primary" onclick="doImportPaste()">Parse &amp; Import</button>
+        <button onclick="undoLast()" id="undoBtn" disabled>↩ Undo</button>
+        <button onclick="clearAll()" class="btn-danger">🗑 Clear All</button>
+      </div>
+    </div>
+
+    <div id="tab-url" class="tab-panel">
+      <div class="hint-box">
+        Doc must be set to <strong>Anyone with link → Viewer</strong>. This fetches the doc automatically.
+      </div>
+      <div class="input-row">
+        <input type="url" id="autoUrl" placeholder="https://docs.google.com/document/d/..." />
+        <button class="btn-primary" onclick="doImportUrl()">Import Doc</button>
+      </div>
+    </div>
+
+    <div id="msgArea"></div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-grid" id="statsGrid" style="display:none">
+    <div class="stat-card"><div class="stat-label">Total Questions</div><div class="stat-val" id="sTotal">0</div></div>
+    <div class="stat-card"><div class="stat-label">Pending</div><div class="stat-val pend" id="sPending">0</div></div>
+    <div class="stat-card"><div class="stat-label">Confirmed</div><div class="stat-val conf" id="sConfirmed">0</div></div>
+    <div class="stat-card"><div class="stat-label">Review</div><div class="stat-val rev" id="sReview">0</div></div>
+    <div class="stat-card"><div class="stat-label">Docs Imported</div><div class="stat-val" id="sDocs">0</div></div>
+  </div>
+
+  <!-- History -->
+  <div class="history-bar" id="historyBar" style="display:none">
+    <strong style="font-size:12px">Imports:</strong>
+    <span id="historyList"></span>
+  </div>
+
+  <!-- Toolbar + Table -->
+  <div id="tableArea" style="display:none">
+    <div class="toolbar">
+      <div class="filters">
+        <label>Date:</label>
+        <select id="fDate" onchange="renderTable()"><option value="">All dates</option></select>
+        <label>Status:</label>
+        <select id="fStatus" onchange="renderTable()">
+          <option value="">All</option>
+          <option>Pending</option><option>Confirmed</option><option>Review</option>
+        </select>
+        <label>Search:</label>
+        <input type="text" id="fSearch" placeholder="Search question..." oninput="renderTable()" style="width:160px" />
+      </div>
+      <div style="display:flex;gap:8px">
+        <button onclick="exportCSV()">⬇ Export CSV</button>
+      </div>
+    </div>
+
+    <div class="table-section">
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th class="row-num">#</th>
+              <th>Date</th>
+              <th>Q No.</th>
+              <th>Question / Context</th>
+              <th>Answer Options</th>
+              <th>Timestamp</th>
+              <th>Source</th>
+              <th>Edit Status</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div id="emptyState" class="empty-state">
+    <div class="icon">📋</div>
+    <p>No records yet</p>
+    <span>Enter your API key, paste your Google Doc content, and click Parse & Import</span>
+  </div>
+
+</div>
+
+<script>
+let records = [];
+let undoStack = [];
+let importHistory = [];
+let docCount = 0;
+
+// Load saved key
+window.onload = () => {
+  const k = sessionStorage.getItem('anthropic_key');
+  if (k) document.getElementById('apiKey').value = k;
+};
+
+function saveKey() {
+  const k = document.getElementById('apiKey').value.trim();
+  if (!k) { showMsg('Please enter your API key.', 'error'); return; }
+  sessionStorage.setItem('anthropic_key', k);
+  showMsg('API key saved for this session.', 'success');
+}
+
+function getKey() {
+  return document.getElementById('apiKey').value.trim() || sessionStorage.getItem('anthropic_key') || '';
+}
+
+function switchTab(name, btn) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  btn.classList.add('active');
+}
+
+async function doImportPaste() {
+  const text = document.getElementById('pasteArea').value.trim();
+  const ref = document.getElementById('refUrl').value.trim();
+  if (!text) { showMsg('Please paste your document text first.', 'error'); return; }
+  await doImport(text, ref || 'Manual paste');
+  document.getElementById('pasteArea').value = '';
+  document.getElementById('refUrl').value = '';
+}
+
+async function doImportUrl() {
+  const url = document.getElementById('autoUrl').value.trim();
+  if (!url) { showMsg('Please enter a Google Docs URL.', 'error'); return; }
+  const id = extractDocId(url);
+  if (!id) { showMsg('Invalid Google Docs URL.', 'error'); return; }
+
+  showMsg('<span class="spinner"></span> Fetching document...', 'info');
+  const exportUrl = `https://docs.google.com/document/d/${id}/export?format=txt`;
+  let text = '';
+  try {
+    const r = await fetch(exportUrl);
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    text = await r.text();
+  } catch(e) {
+    // Try CORS proxy
+    try {
+      const proxy = `https://api.allorigins.win/raw?url=${encodeURIComponent(exportUrl)}`;
+      const r2 = await fetch(proxy);
+      if (!r2.ok) throw new Error('Proxy failed');
+      text = await r2.text();
+    } catch(e2) {
+      showMsg('Could not fetch automatically. Please use the <strong>Paste Doc Text</strong> tab instead — open the doc, press Ctrl+A, Ctrl+C, then paste.', 'error');
+      return;
+    }
+  }
+  await doImport(text, url);
+  document.getElementById('autoUrl').value = '';
+}
+
+async function doImport(text, source) {
+  const key = getKey();
+  if (!key) { showMsg('Please enter your Anthropic API key first.', 'error'); return; }
+
+  showMsg('<span class="spinner"></span> Analyzing with AI — please wait...', 'info');
+
+  let parsed = [];
+  try {
+    parsed = await callClaude(key, text);
+  } catch(e) {
+    showMsg('AI error: ' + e.message, 'error'); return;
+  }
+
+  if (!parsed.length) { showMsg('No questions found in this document.', 'error'); return; }
+
+  undoStack.push(JSON.parse(JSON.stringify(records)));
+  document.getElementById('undoBtn').disabled = false;
+
+  docCount++;
+  const label = 'Doc ' + docCount;
+  parsed.forEach(r => {
+    r.id = Date.now() + Math.random();
+    r.sourceLabel = label;
+    r.sourceRef = source;
+    r.status = r.status || 'Pending';
+  });
+  records = [...records, ...parsed];
+  importHistory.push({ label, count: parsed.length, time: new Date().toLocaleTimeString(), ref: source });
+
+  showMsg(`✓ Imported ${parsed.length} question(s) from ${label}.`, 'success');
+  refresh();
+}
+
+async function callClaude(apiKey, text) {
+  const prompt = `Extract all questions from this document. Return ONLY a JSON array — no markdown, no explanation, just raw JSON.
+
+Each object must have exactly these fields:
+- "date": date string (e.g. "Jan 15" or "2024-01-15"), empty string if not present
+- "questionNumber": question ID (e.g. "Q1", "1", "Question 1")  
+- "context": question text, max 300 chars
+- "options": answer options as single string (e.g. "A. Paris  B. London  C. Berlin  D. Rome"), empty string if none
+- "timestamp": video timestamp like "00:05:30", empty string if not found
+- "status": exactly "Pending", "Confirmed", or "Review" — default "Pending"
+
+Document content:
+---
+${text.slice(0, 10000)}
+---
+
+Return ONLY the JSON array. No other text.`;
+
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-calls': 'true'
+    },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 2000,
+      messages: [{ role: 'user', content: prompt }]
+    })
+  });
+
+  if (!res.ok) {
+    const err = await res.text();
+    let msg = 'API error ' + res.status;
+    try { msg = JSON.parse(err).error?.message || msg; } catch(e) {}
+    throw new Error(msg);
+  }
+
+  const data = await res.json();
+  let raw = data.content.map(c => c.text || '').join('').trim();
+  raw = raw.replace(/```json/g,'').replace(/```/g,'').trim();
+  const a = raw.indexOf('['), b = raw.lastIndexOf(']');
+  if (a === -1 || b === -1) throw new Error('No JSON array in response');
+  return JSON.parse(raw.slice(a, b+1));
+}
+
+function extractDocId(url) {
+  const m = url.match(/\/document\/d\/([a-zA-Z0-9_-]+)/);
+  return m ? m[1] : null;
+}
+
+function updateStatus(id, val) {
+  undoStack.push(JSON.parse(JSON.stringify(records)));
+  document.getElementById('undoBtn').disabled = false;
+  const r = records.find(r => r.id === id);
+  if (r) r.status = val;
+  refresh();
+}
+
+function undoLast() {
+  if (!undoStack.length) return;
+  records = undoStack.pop();
+  if (!undoStack.length) document.getElementById('undoBtn').disabled = true;
+  if (importHistory.length > 0) {
+    const total = importHistory.reduce((s, h) => s + h.count, 0);
+    if (records.length < total) { importHistory.pop(); docCount = Math.max(0, docCount - 1); }
+  }
+  showMsg('Undo successful.', 'success');
+  refresh();
+}
+
+function clearAll() {
+  if (!records.length) return;
+  if (!confirm('Clear all records? (You can undo this action)')) return;
+  undoStack.push(JSON.parse(JSON.stringify(records)));
+  document.getElementById('undoBtn').disabled = false;
+  records = []; importHistory = []; docCount = 0;
+  showMsg('All records cleared. Click Undo to restore.', 'success');
+  refresh();
+}
+
+function refresh() {
+  updateStats();
+  updateHistory();
+  updateDateFilter();
+  renderTable();
+}
+
+function updateStats() {
+  const t = records.length;
+  document.getElementById('sTotal').textContent = t;
+  document.getElementById('sPending').textContent = records.filter(r => r.status === 'Pending').length;
+  document.getElementById('sConfirmed').textContent = records.filter(r => r.status === 'Confirmed').length;
+  document.getElementById('sReview').textContent = records.filter(r => r.status === 'Review').length;
+  document.getElementById('sDocs').textContent = new Set(records.map(r => r.sourceLabel)).size;
+  document.getElementById('statsGrid').style.display = t > 0 ? 'grid' : 'none';
+  document.getElementById('tableArea').style.display = t > 0 ? 'block' : 'none';
+  document.getElementById('emptyState').style.display = t > 0 ? 'none' : 'block';
+  const badge = document.getElementById('headerBadge');
+  badge.style.display = t > 0 ? 'inline' : 'none';
+  badge.textContent = t + ' question' + (t !== 1 ? 's' : '');
+}
+
+function updateHistory() {
+  const bar = document.getElementById('historyBar');
+  if (!importHistory.length) { bar.style.display = 'none'; return; }
+  bar.style.display = 'flex';
+  document.getElementById('historyList').innerHTML = importHistory.map(h =>
+    `<span class="source-tag" title="${escA(h.ref)}">${esc(h.label)} · ${h.count} rows · ${h.time}</span>`
+  ).join(' ');
+}
+
+function updateDateFilter() {
+  const sel = document.getElementById('fDate');
+  const cur = sel.value;
+  const dates = [...new Set(records.map(r => r.date || '').filter(Boolean))].sort();
+  sel.innerHTML = '<option value="">All dates</option>' + dates.map(d => `<option value="${escA(d)}">${esc(d)}</option>`).join('');
+  if (dates.includes(cur)) sel.value = cur;
+}
+
+function getFiltered() {
+  const fd = document.getElementById('fDate').value;
+  const fs = document.getElementById('fStatus').value;
+  const fq = (document.getElementById('fSearch').value || '').toLowerCase();
+  return records.filter(r => {
+    if (fd && r.date !== fd) return false;
+    if (fs && r.status !== fs) return false;
+    if (fq && !(r.context || '').toLowerCase().includes(fq) && !(r.questionNumber || '').toLowerCase().includes(fq)) return false;
+    return true;
+  });
+}
+
+function renderTable() {
+  const rows = getFiltered();
+  const tbody = document.getElementById('tableBody');
+  if (!rows.length) {
+    tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state" style="padding:32px"><div class="icon">🔍</div><p>No matching records</p></div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = rows.map((r, i) => {
+    const sc = r.status === 'Confirmed' ? 's-confirmed' : r.status === 'Review' ? 's-review' : 's-pending';
+    return `<tr>
+      <td class="row-num">${i + 1}</td>
+      <td class="date-cell">${esc(r.date) || '<span style="color:var(--text3)">—</span>'}</td>
+      <td class="q-num">${esc(r.questionNumber)}</td>
+      <td><div class="context-cell" title="${escA(r.context)}">${esc(r.context)}</div></td>
+      <td><div class="options-cell" title="${escA(r.options)}">${esc(r.options) || '<span style="color:var(--text3)">—</span>'}</div></td>
+      <td class="ts-cell">${esc(r.timestamp) || '—'}</td>
+      <td><span class="source-tag" title="${escA(r.sourceRef)}" style="font-size:11px">${esc(r.sourceLabel)}</span></td>
+      <td>
+        <select class="status-sel ${sc}" data-id="${r.id}" onchange="updateStatus(${r.id}, this.value); this.className='status-sel s-'+this.value.toLowerCase()">
+          <option${r.status === 'Pending' ? ' selected' : ''}>Pending</option>
+          <option${r.status === 'Confirmed' ? ' selected' : ''}>Confirmed</option>
+          <option${r.status === 'Review' ? ' selected' : ''}>Review</option>
+        </select>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function exportCSV() {
+  const rows = getFiltered();
+  const header = ['Date', 'Question Number', 'Context', 'Options', 'Timestamp', 'Source', 'Status'];
+  const lines = [header.join(',')];
+  rows.forEach(r => {
+    lines.push([r.date, r.questionNumber, r.context, r.options, r.timestamp, r.sourceLabel, r.status]
+      .map(v => `"${(v || '').replace(/"/g, '""')}"`)
+      .join(','));
+  });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([lines.join('\n')], { type: 'text/csv' }));
+  a.download = 'video_editing_dashboard.csv';
+  a.click();
+}
+
+function showMsg(html, type) {
+  const area = document.getElementById('msgArea');
+  const cls = type === 'error' ? 'msg-error' : type === 'success' ? 'msg-success' : 'msg-info';
+  area.innerHTML = html ? `<div class="msg ${cls}">${html}</div>` : '';
+  if (type === 'success') setTimeout(() => area.innerHTML = '', 3000);
+}
+
+function esc(s) {
+  return (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+function escA(s) {
+  return (s || '').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+</script>
+</body>
+</html>
